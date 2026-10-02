@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚡ Akıllı Zil Kontrol</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --info-color: #17a2b8;
+            --bg-light: #f8f9fa;
+            --text-dark: #343a40;
+            --shadow-light: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-light);
+            color: var(--text-dark);
+            text-align: center;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: var(--shadow-light);
+        }
+
+        h2 {
+            font-size: 1.6rem;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+
+        .button-grid {
+            display: flex;
+            flex-direction: column; 
+            gap: 12px; 
+            margin-bottom: 20px;
+        }
+
+        .button-group {
+            display: grid;
+            gap: 12px;
+        }
+
+        .col-2 { grid-template-columns: 1fr 1fr; }
+        .col-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+        button {
+            padding: 14px 10px;
+            font-size: 15px;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.1s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        button:active { transform: scale(0.98); }
+
+        .btn-success { background-color: var(--success-color); color: white; }
+        .btn-danger { background-color: var(--danger-color); color: white; }
+        .btn-warning { background-color: var(--warning-color); color: var(--text-dark); }
+        .btn-info { background-color: var(--info-color); color: white; }
+        .btn-primary { background-color: var(--primary-color); color: white; }
+        .btn-secondary { background-color: #6c757d; color: white; }
+
+        #sonuc {
+            margin-top: 15px;
+            padding: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border-radius: 8px;
+            background-color: var(--bg-light);
+            border: 1px solid #e9ecef;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>⚡ Akıllı Zil Kontrol</h2>
+
+        <div class="button-grid">
+            <div class="button-group col-2">
+                <button onclick="komutGonder('acik')" class="btn-success">Zilleri Aç</button>
+                <button onclick="komutGonder('kapali')" class="btn-danger">Zilleri Kapat</button>
+            </div>
+
+            <div class="button-group col-3">
+                <button onclick="komutGonder('ogrenci')" class="btn-warning">Öğrenci</button>
+                <button onclick="komutGonder('ogretmen')" class="btn-warning">Öğretmen</button>
+                <button onclick="komutGonder('cikis')" class="btn-warning">Çıkış</button>
+            </div>
+
+            <div class="button-group col-3">
+                <button onclick="komutGonder('marsac')" class="btn-info">Marş Aç</button>
+                <button onclick="komutGonder('marskapat')" class="btn-info">Marş Kapat</button>
+                <button onclick="komutGonder('saygimarsac')" class="btn-info">Saygı & Marş</button>
+            </div>
+            
+            <div class="button-group col-2">
+                <button onclick="komutGonder('yayinac')" class="btn-success">Yayın Aç</button>
+                <button onclick="komutGonder('yayinkapat')" class="btn-danger">Yayın Kapat</button>
+            </div>
+
+            <div class="button-group col-2">
+                <button onclick="komutGonder('durdur')" class="btn-primary">Durdur</button>
+                <button onclick="komutGonder('bekliyor')" class="btn-secondary">Sıfırla</button>
+            </div>
+        </div>
+
+        <div id="sonuc">Hazır. Komut bekliyor...</div>
+    </div>
+
+    <script>
+        // BURAYA KENDİ BİLGİLERİNİ BİR KERE YAZIP KAYDEDECEKSİN:
+        const GITHUB_USER = "KULLANICI_ADIN";  // Örn: erolgunher
+        const REPO_NAME = "Smartzil";
+        const GITHUB_TOKEN = "ghp_BURAYA_TOKENIN_GELECEK"; 
+
+        async function komutGonder(komut) {
+            const sonucDiv = document.getElementById("sonuc");
+            sonucDiv.innerText = `📡 Gönderiliyor: ${komut}...`;
+            sonucDiv.style.backgroundColor = '#fff3cd';
+
+            const url = `https://api.github.com/repos/${GITHUB_USER}/${REPO_NAME}/contents/komut.json`;
+
+            try {
+                // 1. Adım: Dosyanın güncel SHA kodunu al
+                const getRes = await fetch(url, {
+                    headers: { "Authorization": `token ${GITHUB_TOKEN}` }
+                });
+                if (!getRes.ok) throw new Error("GitHub bağlantı hatası (Token veya kullanıcı adı yanlış).");
+                
+                const fileData = await getRes.json();
+                
+                // 2. Adım: Yeni komutu hazırla ve şifrele
+                const jsonVeri = JSON.stringify({ komut: komut, zaman: new Date().toLocaleTimeString() }, null, 2);
+                const contentBase64 = btoa(unescape(encodeURIComponent(jsonVeri)));
+
+                // 3. Adım: GitHub'a yaz
+                const putRes = await fetch(url, {
+                    method: "PUT",
+                    headers: {
+                        "Authorization": `token ${GITHUB_TOKEN}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        message: `Komut: ${komut}`,
+                        content: contentBase64,
+                        sha: fileData.sha
+                    })
+                });
+
+                if (putRes.ok) {
+                    sonucDiv.innerText = `✅ Başarılı: ${komut.toUpperCase()} iletildi.`;
+                    sonucDiv.style.backgroundColor = '#d4edda';
+                } else {
+                    throw new Error("Dosya güncellenemedi.");
+                }
+
+            } catch (err) {
+                console.error(err);
+                sonucDiv.innerText = `❌ Hata: ${err.message}`;
+                sonucDiv.style.backgroundColor = '#f8d7da';
+            }
+        }
+    </script>
+
+</body>
+</html>
