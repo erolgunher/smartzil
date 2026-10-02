@@ -181,26 +181,7 @@
     </div>
 
     <script>
-        const inputCihaz = document.getElementById("cihazAdi");
-        if (localStorage.getItem("cihazAdi")) inputCihaz.value = localStorage.getItem("cihazAdi");
-        inputCihaz.addEventListener("input", () => localStorage.setItem("cihazAdi", inputCihaz.value));
-
-        function komutGonder(komut) {
-            const cihaz = inputCihaz.value.trim();
-
-            if (!cihaz) {
-                alert("Lütfen cihaz adı girin!");
-                inputCihaz.focus();
-                return;
-            }
-
-            const sonucDiv = document.getElementById("sonuc");
-            sonucDiv.innerHTML = `📡 ${cihaz.toUpperCase()} için komut hazırlandı: ${komut.toUpperCase()}`;
-            sonucDiv.style.backgroundColor = '#d4edda';
-        }
-    </script>
-    <script>
-        const GITHUB_USER = "erolgunher";
+               const GITHUB_USER = "erolgunher";
         const REPO_NAME = "smartzil";
         const WORKFLOW_FILE = "komut-guncelle.yml";
 
@@ -239,6 +220,24 @@
                 sonucDiv.style.backgroundColor = '#f8d7da';
             }
         }
+        const inputCihaz = document.getElementById("cihazAdi");
+        if (localStorage.getItem("cihazAdi")) inputCihaz.value = localStorage.getItem("cihazAdi");
+        inputCihaz.addEventListener("input", () => localStorage.setItem("cihazAdi", inputCihaz.value));
+
+        function komutGonder(komut) {
+            const cihaz = inputCihaz.value.trim();
+
+            if (!cihaz) {
+                alert("Lütfen cihaz adı girin!");
+                inputCihaz.focus();
+                return;
+            }
+
+            const sonucDiv = document.getElementById("sonuc");
+            sonucDiv.innerHTML = `📡 ${cihaz.toUpperCase()} için komut hazırlandı: ${komut.toUpperCase()}`;
+            sonucDiv.style.backgroundColor = '#d4edda';
+        }
     </script>
+   
 </body>
 </html>
