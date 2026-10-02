@@ -51,12 +51,12 @@
             display: inline-block;
         }
 
-        /* Ayarlar & Giriş Alanları */
+        /* Giriş ve Ayar Alanları */
         .input-group {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
             align-items: center;
         }
 
@@ -147,7 +147,9 @@
         <h2>⚡ Uzaktan Kontrol Paneli</h2>
 
         <div class="input-group">
+            <!-- Cihaz Adı Giriş Kutusu Eklendi -->
             <input type="text" id="cihazAdi" placeholder="Cihaz adı (ör: nazim, okul101)">
+            <!-- GitHub Token Kutusu -->
             <input type="password" id="githubToken" placeholder="GitHub Personal Access Token (PAT)">
         </div>
 
@@ -184,7 +186,6 @@
     </div>
 
     <script>
-        // GitHub Bilgileri (Kendi kullanıcı adını ve deponu buraya yazabilirsin)
         const GITHUB_USER = "erolgunher";
         const REPO_NAME = "smartzil";
         const FILE_PATH = "komut.json";
@@ -192,11 +193,11 @@
         const inputCihaz = document.getElementById("cihazAdi");
         const inputToken = document.getElementById("githubToken");
 
-        // Sayfa açılınca localStorage'dan verileri yükle
+        // Sayfa açılınca localStorage'dan eski değerleri getir
         if (localStorage.getItem("cihazAdi")) inputCihaz.value = localStorage.getItem("cihazAdi");
         if (localStorage.getItem("githubToken")) inputToken.value = localStorage.getItem("githubToken");
 
-        // Değiştikçe localStorage'a kaydet (Token sadece senin telefonunda/tarayıcında gizli kalır)
+        // Yazıldıkça localStorage'a kaydet
         inputCihaz.addEventListener("input", () => localStorage.setItem("cihazAdi", inputCihaz.value));
         inputToken.addEventListener("input", () => localStorage.setItem("githubToken", inputToken.value));
 
@@ -211,7 +212,7 @@
             }
 
             if (!token) {
-                alert("Lütfen GitHub Token (PAT) bilginizi girin! (Bu sadece tarayıcınızda saklanır, dışarı sızmaz)");
+                alert("Lütfen GitHub Token (PAT) bilginizi girin! (Sadece tarayıcınızda saklanır)");
                 inputToken.focus();
                 return;
             }
@@ -222,7 +223,6 @@
             const apiUrl = `https://api.github.com/repos/${GITHUB_USER}/${REPO_NAME}/contents/${FILE_PATH}`;
 
             try {
-                // 1. Adım: Mevcut dosyanın SHA değerini almalıyız (GitHub API dosyaları güncellemek için SHA ister)
                 let fileSha = "";
                 const getResponse = await fetch(apiUrl, {
                     headers: { "Authorization": `token ${token}` }
@@ -233,7 +233,6 @@
                     fileSha = fileData.sha;
                 }
 
-                // 2. Adım: Yeni komut içeriğini hazırla ve Base64'e çevir
                 const yeniIcerik = JSON.stringify({
                     cihaz: cihaz,
                     komut: komut,
@@ -243,7 +242,6 @@
 
                 const contentBase64 = btoa(unescape(encodeURIComponent(yeniIcerik)));
 
-                // 3. Adım: GitHub API ile dosyayı güncelle
                 const putResponse = await fetch(apiUrl, {
                     method: "PUT",
                     headers: {
@@ -251,14 +249,14 @@
                         "Content-Type": "application/json",
                     },
                     body: JSON.stringify({
-                        message: `Komut güncellendi: ${komut}`,
+                        message: `Komut güncellendi: ${komut} (${cihaz})`,
                         content: contentBase64,
-                        sha: fileSha // Dosyanın önceki versiyon ID'si (zorunludur)
+                        sha: fileSha
                     })
                 });
 
                 if (putResponse.ok) {
-                    document.getElementById("sonuc").innerText = `✅ Komut Başarıyla Gönderildi: ${komut.toUpperCase()}`;
+                    document.getElementById("sonuc").innerText = `✅ Komut Başarıyla Gönderildi: ${komut.toUpperCase()} (${cihaz})`;
                     document.getElementById("sonuc").style.backgroundColor = '#d4edda';
                 } else {
                     const errJson = await putResponse.json();
