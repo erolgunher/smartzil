@@ -3,13 +3,15 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ Akıllı Zil Kontrol</title>
+    <title>⚡ Uzaktan Kontrol Paneli (GitHub Tabanlı)</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 
     <style>
         :root {
             --primary-color: #007bff;
+            --primary-hover: #0056b3;
+            --secondary-color: #6c757d;
             --success-color: #28a745;
             --danger-color: #dc3545;
             --warning-color: #ffc107;
@@ -29,74 +31,125 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
         }
 
         .container {
             width: 100%;
-            max-width: 500px;
+            max-width: 600px;
             background: #ffffff;
-            padding: 25px;
+            padding: 30px;
             border-radius: 12px;
             box-shadow: var(--shadow-light);
         }
 
         h2 {
-            font-size: 1.6rem;
+            font-size: 1.8rem;
             margin-bottom: 20px;
             color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+            display: inline-block;
+        }
+
+        /* Ayarlar & Giriş Alanları */
+        .input-group {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+        }
+
+        input {
+            padding: 12px;
+            font-size: 16px;
+            width: calc(100% - 24px);
+            max-width: 350px;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            border-color: var(--primary-color);
+            outline: none;
         }
 
         .button-grid {
             display: flex;
-            flex-direction: column; 
-            gap: 12px; 
-            margin-bottom: 20px;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 25px;
         }
 
         .button-group {
             display: grid;
-            gap: 12px;
+            gap: 15px;
         }
 
         .col-2 { grid-template-columns: 1fr 1fr; }
         .col-3 { grid-template-columns: 1fr 1fr 1fr; }
 
         button {
-            padding: 14px 10px;
-            font-size: 15px;
+            padding: 12px 15px;
+            font-size: 16px;
             font-weight: 600;
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            transition: transform 0.1s;
+            transition: background-color 0.3s, transform 0.1s;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         button:active { transform: scale(0.98); }
 
         .btn-success { background-color: var(--success-color); color: white; }
+        .btn-success:hover { background-color: #218838; }
+
         .btn-danger { background-color: var(--danger-color); color: white; }
+        .btn-danger:hover { background-color: #c82333; }
+
         .btn-warning { background-color: var(--warning-color); color: var(--text-dark); }
+        .btn-warning:hover { background-color: #e0a800; }
+
         .btn-info { background-color: var(--info-color); color: white; }
+        .btn-info:hover { background-color: #117a8b; }
+
         .btn-primary { background-color: var(--primary-color); color: white; }
-        .btn-secondary { background-color: #6c757d; color: white; }
+        .btn-primary:hover { background-color: var(--primary-hover); }
+
+        .btn-secondary { background-color: var(--secondary-color); color: white; }
+        .btn-secondary:hover { background-color: #5a6268; }
 
         #sonuc {
             margin-top: 15px;
-            padding: 12px;
-            font-size: 0.9rem;
+            padding: 15px;
+            font-size: 1rem;
             font-weight: 600;
             border-radius: 8px;
             background-color: var(--bg-light);
             border: 1px solid #e9ecef;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            white-space: pre-line;
+        }
+
+        @media (max-width: 500px) {
+            .button-group { grid-template-columns: 1fr !important; }
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h2>⚡ Akıllı Zil Kontrol</h2>
+        <h2>⚡ Uzaktan Kontrol Paneli</h2>
+
+        <div class="input-group">
+            <input type="text" id="cihazAdi" placeholder="Cihaz adı (ör: nazim, okul101)">
+            <input type="password" id="githubToken" placeholder="GitHub Personal Access Token (PAT)">
+        </div>
 
         <div class="button-grid">
             <div class="button-group col-2">
@@ -105,85 +158,119 @@
             </div>
 
             <div class="button-group col-3">
-                <button onclick="komutGonder('ogrenci')" class="btn-warning">Öğrenci</button>
-                <button onclick="komutGonder('ogretmen')" class="btn-warning">Öğretmen</button>
-                <button onclick="komutGonder('cikis')" class="btn-warning">Çıkış</button>
+                <button onclick="komutGonder('ogrenci')" class="btn-warning">Öğrenci Zil Çal</button>
+                <button onclick="komutGonder('ogretmen')" class="btn-warning">Öğretmen Zil Çal</button>
+                <button onclick="komutGonder('cikis')" class="btn-warning">Çıkış Zil Çal</button>
             </div>
 
             <div class="button-group col-3">
-                <button onclick="komutGonder('marsac')" class="btn-info">Marş Aç</button>
-                <button onclick="komutGonder('marskapat')" class="btn-info">Marş Kapat</button>
-                <button onclick="komutGonder('saygimarsac')" class="btn-info">Saygı & Marş</button>
+                <button onclick="komutGonder('marsac')" class="btn-info">İstiklal Marşı Çal</button>
+                <button onclick="komutGonder('marskapat')" class="btn-info">İstiklal Marşı Kapat</button>
+                <button onclick="komutGonder('saygimarsac')" class="btn-info">Saygı Duruşu & Marş Çal</button>
             </div>
             
             <div class="button-group col-2">
-                <button onclick="komutGonder('yayinac')" class="btn-success">Yayın Aç</button>
-                <button onclick="komutGonder('yayinkapat')" class="btn-danger">Yayın Kapat</button>
+                <button onclick="komutGonder('yayinac')" class="btn-success">Müzik Yayını Aç</button>
+                <button onclick="komutGonder('yayinkapat')" class="btn-danger">Müzik Yayını Kapat</button>
             </div>
 
             <div class="button-group col-2">
-                <button onclick="komutGonder('durdur')" class="btn-primary">Durdur</button>
-                <button onclick="komutGonder('bekliyor')" class="btn-secondary">Sıfırla</button>
+                <button onclick="komutGonder('durdur')" class="btn-primary">Çalanı Durdur</button>
+                <button onclick="komutGonder('durum')" class="btn-secondary">Sistem Durumunu Kontrol Et</button>
             </div>
         </div>
 
-        <div id="sonuc">Hazır. Komut bekliyor...</div>
+        <div id="sonuc">Komut göndermek için bir düğmeye basın.</div>
     </div>
 
     <script>
-        // BURAYA KENDİ BİLGİLERİNİ BİR KERE YAZIP KAYDEDECEKSİN:
-        const GITHUB_USER = "KULLANICI_ADIN";  // Örn: erolgunher
-        const REPO_NAME = "Smartzil";
-        const GITHUB_TOKEN = "ghp_BURAYA_TOKENIN_GELECEK"; 
+        // GitHub Bilgileri (Kendi kullanıcı adını ve deponu buraya yazabilirsin)
+        const GITHUB_USER = "erolgunher";
+        const REPO_NAME = "smartzil";
+        const FILE_PATH = "komut.json";
+
+        const inputCihaz = document.getElementById("cihazAdi");
+        const inputToken = document.getElementById("githubToken");
+
+        // Sayfa açılınca localStorage'dan verileri yükle
+        if (localStorage.getItem("cihazAdi")) inputCihaz.value = localStorage.getItem("cihazAdi");
+        if (localStorage.getItem("githubToken")) inputToken.value = localStorage.getItem("githubToken");
+
+        // Değiştikçe localStorage'a kaydet (Token sadece senin telefonunda/tarayıcında gizli kalır)
+        inputCihaz.addEventListener("input", () => localStorage.setItem("cihazAdi", inputCihaz.value));
+        inputToken.addEventListener("input", () => localStorage.setItem("githubToken", inputToken.value));
 
         async function komutGonder(komut) {
-            const sonucDiv = document.getElementById("sonuc");
-            sonucDiv.innerText = `📡 Gönderiliyor: ${komut}...`;
-            sonucDiv.style.backgroundColor = '#fff3cd';
+            const cihaz = inputCihaz.value.trim();
+            const token = inputToken.value.trim();
 
-            const url = `https://api.github.com/repos/${GITHUB_USER}/${REPO_NAME}/contents/komut.json`;
+            if (!cihaz) {
+                alert("Lütfen cihaz adı girin!");
+                inputCihaz.focus();
+                return;
+            }
+
+            if (!token) {
+                alert("Lütfen GitHub Token (PAT) bilginizi girin! (Bu sadece tarayıcınızda saklanır, dışarı sızmaz)");
+                inputToken.focus();
+                return;
+            }
+
+            document.getElementById("sonuc").innerHTML = `📡 ${cihaz.toUpperCase()} cihazına ${komut.toUpperCase()} komutu gönderiliyor...`;
+            document.getElementById("sonuc").style.backgroundColor = '#fff3cd';
+
+            const apiUrl = `https://api.github.com/repos/${GITHUB_USER}/${REPO_NAME}/contents/${FILE_PATH}`;
 
             try {
-                // 1. Adım: Dosyanın güncel SHA kodunu al
-                const getRes = await fetch(url, {
-                    headers: { "Authorization": `token ${GITHUB_TOKEN}` }
+                // 1. Adım: Mevcut dosyanın SHA değerini almalıyız (GitHub API dosyaları güncellemek için SHA ister)
+                let fileSha = "";
+                const getResponse = await fetch(apiUrl, {
+                    headers: { "Authorization": `token ${token}` }
                 });
-                if (!getRes.ok) throw new Error("GitHub bağlantı hatası (Token veya kullanıcı adı yanlış).");
-                
-                const fileData = await getRes.json();
-                
-                // 2. Adım: Yeni komutu hazırla ve şifrele
-                const jsonVeri = JSON.stringify({ komut: komut, zaman: new Date().toLocaleTimeString() }, null, 2);
-                const contentBase64 = btoa(unescape(encodeURIComponent(jsonVeri)));
 
-                // 3. Adım: GitHub'a yaz
-                const putRes = await fetch(url, {
+                if (getResponse.ok) {
+                    const fileData = await getResponse.json();
+                    fileSha = fileData.sha;
+                }
+
+                // 2. Adım: Yeni komut içeriğini hazırla ve Base64'e çevir
+                const yeniIcerik = JSON.stringify({
+                    cihaz: cihaz,
+                    komut: komut,
+                    durum: "yeni",
+                    zaman: new Date().toISOString()
+                }, null, 2);
+
+                const contentBase64 = btoa(unescape(encodeURIComponent(yeniIcerik)));
+
+                // 3. Adım: GitHub API ile dosyayı güncelle
+                const putResponse = await fetch(apiUrl, {
                     method: "PUT",
                     headers: {
-                        "Authorization": `token ${GITHUB_TOKEN}`,
-                        "Content-Type": "application/json"
+                        "Authorization": `token ${token}`,
+                        "Content-Type": "application/json",
                     },
                     body: JSON.stringify({
-                        message: `Komut: ${komut}`,
+                        message: `Komut güncellendi: ${komut}`,
                         content: contentBase64,
-                        sha: fileData.sha
+                        sha: fileSha // Dosyanın önceki versiyon ID'si (zorunludur)
                     })
                 });
 
-                if (putRes.ok) {
-                    sonucDiv.innerText = `✅ Başarılı: ${komut.toUpperCase()} iletildi.`;
-                    sonucDiv.style.backgroundColor = '#d4edda';
+                if (putResponse.ok) {
+                    document.getElementById("sonuc").innerText = `✅ Komut Başarıyla Gönderildi: ${komut.toUpperCase()}`;
+                    document.getElementById("sonuc").style.backgroundColor = '#d4edda';
                 } else {
-                    throw new Error("Dosya güncellenemedi.");
+                    const errJson = await putResponse.json();
+                    throw new Error(errJson.message || "GitHub API hatası");
                 }
 
             } catch (err) {
-                console.error(err);
-                sonucDiv.innerText = `❌ Hata: ${err.message}`;
-                sonucDiv.style.backgroundColor = '#f8d7da';
+                document.getElementById("sonuc").innerText = `❌ Gönderilemedi: ${err.message}`;
+                document.getElementById("sonuc").style.backgroundColor = '#f8d7da';
+                console.error("Hata:", err);
             }
         }
     </script>
-
 </body>
 </html>
