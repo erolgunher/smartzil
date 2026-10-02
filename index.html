@@ -180,24 +180,28 @@
         <div id="sonuc">Komut göndermek için bir düğmeye basın.</div>
     </div>
 
-    <script>
+   
+        <script>
+        // GitHub Bilgileri
         const GITHUB_USER = "erolgunher";
         const REPO_NAME = "smartzil";
-        const WORKFLOW_FILE = "komut-guncelle.yml";
+        const WORKFLOW_FILE = "komut-guncelle.yml"; // veya repository_dispatch kullanıyorsan ilgili event adı
+
+        // Not: Tarayıcıda güvenli çalışması için token'ı buraya yazabilirsin 
+        // ya da arayüze bir token inputu ekleyebiliriz. Güvenlik için şimdilik buraya sabitleyebilir veya test edebilirsin:
+        const GITHUB_TOKEN = "ghp_BURAYA_KENDI_GITHUB_TOKENINIZI_YAZIN"; 
 
         const inputCihaz = document.getElementById("cihazAdi");
         
-        // Sayfa açıldığında hafızadaki cihaz adını getir
         if (localStorage.getItem("cihazAdi")) {
             inputCihaz.value = localStorage.getItem("cihazAdi");
         }
 
-        // Yazıldıkça localStorage'a kaydet
         inputCihaz.addEventListener("input", () => {
             localStorage.setItem("cihazAdi", inputCihaz.value);
         });
 
-        function komutGonder(komut) {
+        async function komutGonder(komut) {
             const cihaz = inputCihaz.value.trim();
 
             if (!cihaz) {
@@ -206,16 +210,47 @@
                 return;
             }
 
+            if (!GITHUB_TOKEN || GITHUB_TOKEN.includes("BURAYA")) {
+                alert("Lütfen script içerisine geçerli bir GitHub Token (PAT) girin!");
+                return;
+            }
+
             const sonucDiv = document.getElementById("sonuc");
             sonucDiv.innerHTML = `📡 ${cihaz.toUpperCase()} cihazına ${komut.toUpperCase()} komutu iletiliyor...`;
             sonucDiv.style.backgroundColor = '#fff3cd';
 
-            // Buraya tıklama anında tetiklenecek akış mantığı bağlanıyor
-            setTimeout(() => {
-                sonucDiv.innerHTML = `✅ Komut Gönderildi: ${komut.toUpperCase()} (${cihaz})\n(C# servisi güncellemeyi alacak)`;
-                sonucDiv.style.backgroundColor = '#d4edda';
-            }, 500);
+            try {
+                // GitHub Actions Workflow Dispatch API İsteği
+                const response = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${REPO_NAME}/actions/workflows/${WORKFLOW_FILE}/dispatches`, {
+                    method: 'POST',
+                    headers: {
+                        "Authorization": `Bearer ${GITHUB_TOKEN}`,
+                        "Accept": "application/vnd.github+json",
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        ref: "main", // ya da master
+                        inputs: {
+                            cihaz: cihaz,
+                            komut: komut
+                        }
+                    })
+                });
+
+                if (response.ok) {
+                    sonucDiv.innerHTML = `✅ Başarılı! Komut Gönderildi: ${komut.toUpperCase()} (${cihaz})`;
+                    sonucDiv.style.backgroundColor = '#d4edda';
+                } else {
+                    const errData = await response.json();
+                    throw new Error(errData.message || "GitHub API Hatası");
+                }
+
+            } catch (error) {
+                sonucDiv.innerHTML = `❌ Hata Oluştu: ${error.message}`;
+                sonucDiv.style.backgroundColor = '#f8d7da';
+            }
         }
     </script>
+    
 </body>
 </html>
