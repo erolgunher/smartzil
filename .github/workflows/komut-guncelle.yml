@@ -1,0 +1,40 @@
+name: Komut Guncelle
+
+on:
+  workflow_dispatch:
+    inputs:
+      cihaz:
+        description: 'Cihaz Adi'
+        required: true
+        default: 'nazim'
+      komut:
+        description: 'Gonderilen Komut'
+        required: true
+        default: 'durum'
+
+permissions:
+  contents: write
+
+jobs:
+  guncelle:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Depoyu Kopyala
+        uses: actions/checkout@v4
+
+      - name: komut.json Dosyasini Guncelle
+        run: |
+          echo "{
+            \"cihaz\": \"${{ github.event.inputs.cihaz }}\",
+            \"komut\": \"${{ github.event.inputs.komut }}\",
+            \"durum\": \"yeni\",
+            \"zaman\": \"$(date -u +"%Y-%m-%dT%H:%M:%SZ")\"
+          }" > komut.json
+
+      - name: Degisiklikleri Kaydet ve Push Yap
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+          git add komut.json
+          git commit -m "Otomatik komut guncellendi: ${{ github.event.inputs.komut }} (${{ github.event.inputs.cihaz }})"
+          git push
