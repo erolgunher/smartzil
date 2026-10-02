@@ -181,14 +181,11 @@
     </div>
 
     <script>
-        const GITHUB_USER = "erolgunher";
-        const REPO_NAME = "smartzil";
-
         const inputCihaz = document.getElementById("cihazAdi");
         if (localStorage.getItem("cihazAdi")) inputCihaz.value = localStorage.getItem("cihazAdi");
         inputCihaz.addEventListener("input", () => localStorage.setItem("cihazAdi", inputCihaz.value));
 
-        async function komutGonder(komut) {
+        function komutGonder(komut) {
             const cihaz = inputCihaz.value.trim();
 
             if (!cihaz) {
@@ -197,16 +194,10 @@
                 return;
             }
 
-            document.getElementById("sonucinnerHTML = `📡 ${cihaz.toUpperCase()} cihazına ${komut.toUpperCase()} komutu iletiliyor...`;
-            document.getElementById("sonuc").style.backgroundColor = '#fff3cd';
-
-            // GitHub Actions workflow_dispatch tetikleme API'si
-            const apiUrl = `https://api.github.com/repos/${GITHUB_USER}/${REPO_NAME}/actions/workflows/komut-guncelle.yml/dispatches`;
-
-            // Not: GitHub Actions'ı dışarıdan token'sız tetiklemek için public bir proxy veya güvenli bir dispatch gerekir. 
-            // Ancak bu mimariyi tamamen token'sız ve tek tıkla çalıştırmak istersen C# tarafına geçiş yapabiliriz.
+            const sonucDiv = document.getElementById("sonuc");
+            sonucDiv.innerHTML = `📡 ${cihaz.toUpperCase()} için komut hazırlandı: ${komut.toUpperCase()}`;
+            sonucDiv.style.backgroundColor = '#d4edda';
         }
     </script>
-</script>
 </body>
 </html>
